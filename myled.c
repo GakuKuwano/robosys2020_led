@@ -4,6 +4,7 @@
 #include <linux/device.h>
 #include <linux/uaccess.h>
 #include <linux/io.h>
+#define led_num 5
 
 MODULE_AUTHOR("Ryuichi Ueda & Gaku Kuwano");
 MODULE_DESCRIPTION("driver for LED cotrol");
@@ -15,6 +16,8 @@ static struct cdev cdv;
 static struct class *cls = NULL;
 static volatile u32 *gpio_base = NULL;
 
+static int gpio[led_num] = {25, 8, 7, 12, 16};
+
 static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_t*pos)
 {
 	char c;
@@ -22,11 +25,24 @@ static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_
 		return -EFAULT;
 
 //	printk(KERN_INFO "receive %c\n", c);
-	if(c=='0')
-		gpio_base[10] = 1 << 25;
+	if(c=='0'){
+		gpio_base[10] = 1 << gpio[0];	
+		gpio_base[10] = 1 << gpio[1];	
+		gpio_base[10] = 1 << gpio[2];	
+		gpio_base[10] = 1 << gpio[3];	
+		gpio_base[10] = 1 << gpio[4];	
+	}
 	else if (c == '1')
-		gpio_base[7] = 1 << 25;
-
+		gpio_base[7] = 1 << gpio[0];
+	else if (c == '2')
+		gpio_base[7] = 1 << gpio[1];
+	else if (c == '3')
+		gpio_base[7] = 1 << gpio[2];
+	else if (c == '4')
+		gpio_base[7] = 1 << gpio[3];
+	else if (c == '5')
+		gpio_base[7] = 1 << gpio[4];
+	
 	return 1;
 }
 
@@ -44,13 +60,13 @@ static ssize_t sushi_read(struct file* filp, char* buf, size_t count, loff_t* po
 
 static struct file_operations led_fops = {
 	.owner = THIS_MODULE,
-	.write = led_write,
-	.read = sushi_read
+	.write = led_write
+//	.read = sushi_read
 };
 
 static int __init init_mod(void)
 {
-	int retval;
+	int retval, i;
 	retval = alloc_chrdev_region(&dev, 0, 1, "myked");
 	if(retval < 0){
 		printk(KERN_ERR "alloc_chrdev_region failed. \n");
@@ -74,12 +90,13 @@ static int __init init_mod(void)
 	
 	gpio_base = ioremap_nocache(0xfe200000, 0xA0);
 
-	const u32 led = 25;
-	const u32 index = led/10;
-	const u32 shift = (led%10)*3;
-	const u32 mask = ~(0x7 << shift);
-	gpio_base[index] = (gpio_base[index] & mask) | (0x1 << shift);
-
+	for(i = 0; i < led_num; i++){
+		const u32 led = gpio[i];
+		const u32 index = led/10;
+		const u32 shift = (led%10)*3;
+		const u32 mask = ~(0x7 << shift);
+		gpio_base[index] = (gpio_base[index] & mask) | (0x1 << shift);
+	}
 	return 0;
 }
 
