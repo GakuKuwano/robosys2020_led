@@ -1,12 +1,20 @@
+/*
+ *Copyright (c) 2020 Gaku Kuwano.
+This program is a GNUGeneral Public License and is a free copyleft license for software and other types of works.
+ */
+
+
 #include <linux/module.h>
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/uaccess.h>
 #include <linux/io.h>
+#include <linux/timer.h>
+#include <linux/delay.h>
 #define led_num 5
 
-MODULE_AUTHOR("Ryuichi Ueda & Gaku Kuwano");
+MODULE_AUTHOR("Ryuichi Ueda and Gaku Kuwano");
 MODULE_DESCRIPTION("driver for LED cotrol");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("0.0.1");
@@ -21,28 +29,72 @@ static int gpio[led_num] = {25, 8, 7, 12, 16};
 static ssize_t led_write(struct file* filp, const char* buf, size_t count, loff_t*pos)
 {
 	char c;
+	int i, m;
 	if(copy_from_user(&c, buf, sizeof(char)))
 		return -EFAULT;
 
 //	printk(KERN_INFO "receive %c\n", c);
-	if(c=='0'){
+	if(c && c != '\n'){
+	if( 0 <= (int) c - (int) '0' && (int) c - (int) '0' <= 5){
+		if (c=='0'){
+			gpio_base[10] = 1 << gpio[0];	
+			gpio_base[10] = 1 << gpio[1];	
+			gpio_base[10] = 1 << gpio[2];	
+			gpio_base[10] = 1 << gpio[3];	
+			gpio_base[10] = 1 << gpio[4];
+			printk(KERN_INFO "LED OFF \n");			
+		}	
+		else if (c == '1'){
+			gpio_base[7] = 1 << gpio[0];
+			printk(KERN_INFO "LED 1 ON \n");			
+		}		
+		else if (c == '2'){
+			gpio_base[7] = 1 << gpio[1];
+			printk(KERN_INFO "LED 2 ON \n");			
+		}		
+		else if (c == '3'){
+			gpio_base[7] = 1 << gpio[2];
+			printk(KERN_INFO "LED 3 ON \n");			
+		}		
+		else if (c == '4'){
+			gpio_base[7] = 1 << gpio[3];
+			printk(KERN_INFO "LED 4 ON \n");			
+		}		
+		else if (c == '5'){
+			gpio_base[7] = 1 << gpio[4];	
+			printk(KERN_INFO "LED 5 ON \n");			
+		}		
+	}
+	else{
 		gpio_base[10] = 1 << gpio[0];	
 		gpio_base[10] = 1 << gpio[1];	
 		gpio_base[10] = 1 << gpio[2];	
 		gpio_base[10] = 1 << gpio[3];	
-		gpio_base[10] = 1 << gpio[4];	
+		gpio_base[10] = 1 << gpio[4];
+		printk(KERN_INFO "I don't know !!!\n");			
+		for(m = 0; m < 2; m++){
+			for(i = 0; i < 5; i++){
+				gpio_base[7] = 1 << gpio[i];
+				msleep(200);
+			}
+			for(i = 4; i > -1; i--){
+				gpio_base[10] = 1 << gpio[i];
+				msleep(200);
+			}
+		}
+		for(m = 0; m < 5; m++){
+			for(i = 0; i < 5; i++){
+				gpio_base[7] = 1 << gpio[i];
+			}
+			msleep(100);
+			for(i = 0; i < 5; i++){
+				gpio_base[10] = 1 << gpio[i];
+			}
+			msleep(100);
+		}
 	}
-	else if (c == '1')
-		gpio_base[7] = 1 << gpio[0];
-	else if (c == '2')
-		gpio_base[7] = 1 << gpio[1];
-	else if (c == '3')
-		gpio_base[7] = 1 << gpio[2];
-	else if (c == '4')
-		gpio_base[7] = 1 << gpio[3];
-	else if (c == '5')
-		gpio_base[7] = 1 << gpio[4];
-	
+	}
+
 	return 1;
 }
 
