@@ -17,4 +17,12 @@
 
 # DEMO
 
+```bash
+  git clone https://github.com/GakuKuwano/robosys2020_led.git
+  cd robosys2020_led
+  make
+  sudo insmod myled.ko
+  sudo chmod 666 /dev/myled0
+```
+
 https://youtu.be/8bBAgfoZG0U
