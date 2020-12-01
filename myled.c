@@ -14,7 +14,7 @@ This program is a GNUGeneral Public License and is a free copyleft license for s
 #include <linux/delay.h>
 #define led_num 5
 
-MODULE_AUTHOR("Ryuichi Ueda and Gaku Kuwano");
+MODULE_AUTHOR("Gaku Kuwano and Ryuichi Ueda");
 MODULE_DESCRIPTION("driver for LED cotrol");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("0.0.1");
