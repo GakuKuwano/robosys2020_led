@@ -17,6 +17,7 @@
 
 Raspberry Pi GPIO pin : {25, 8, 7, 12, 16}　(左から順にLED1, LED2, LED3, LED4, LED5を割り当てる)
 
+<img src="https://github.com/GakuKuwano/robosys2020_led/blob/main/images/robosys_circuit_diagram_led.png" width="320px">
 
 ![Figure_Experimental_image](https://github.com/GakuKuwano/robosys2020_led/blob/main/images/IMG_1169.PNG "Figure_Experimental_image")
 
